@@ -7,6 +7,7 @@
 # an experienced machine and its history of previous games
 #############################################################
 import pandas as pd
+import random
 
 current_state = dict()
 
@@ -57,6 +58,7 @@ def ask_for_move():
     next_move = None
     print("Squares are labeled A, B, C horizontally, and then 1, 2, 3 top to bottom")
     valid = False
+    possible_moves = get_possible_moves()
     while not valid:
         print("Possible moves: {0}".format(possible_moves))
         next_move = input("What square do you want to play? ")
@@ -65,6 +67,17 @@ def ask_for_move():
             valid = True
         else:
             print("{0} is not a valid move".format(next_move))
+    return next_move
+
+def computer_move():
+    global current_state
+    #############################################################
+    # The computer will currently randomly choose the next move
+    #############################################################
+    next_move = None
+    possible_moves = get_possible_moves()
+    next_move = random.choice(possible_moves)
+    print("The computer plays " + next_move)
     return next_move
 
 def make_move(next_move, player):
@@ -99,10 +112,12 @@ done = False
 while not done:
     clear_board()
     terminal_state = False
-    player = None
-    while player is None or player.upper() not in ('X','O'):
-        player = input("Do you want to play first (X) or second (O)? Enter 'X' or 'O': ")
-    player = player.upper().strip()
+    manual_player = None
+    computer_player = None
+    current_player = "X"
+    while manual_player is None or manual_player.upper() not in ('X','O'):
+        manual_player = input("Do you want to play first (X) or second (O)? Enter 'X' or 'O': ")
+    manual_player = manual_player.upper().strip()
     while not terminal_state:
         draw_board()
         possible_moves = get_possible_moves()
@@ -113,12 +128,20 @@ while not done:
             print("We have a winner!")
             terminal_state = True
         else:
-            next_move = ask_for_move()
-            make_move(next_move, player)
-            if player == "X":
-                player = "O"
+            #########################
+            # If current_player = manual_player, then prompt for move
+            # else, have computer pick a move
+            #########################
+            next_move = None
+            if current_player == manual_player:
+                next_move = ask_for_move()
             else:
-                player = "X"
+                next_move = computer_move()
+            make_move(next_move, current_player)
+            if current_player == "X":
+                current_player = "O"
+            else:
+                current_player = "X"
     play_again = None
     while play_again is None or play_again.upper() not in ('Y','N'):
         play_again = input("Do you want to play again? Enter 'Y' or 'N': ")
